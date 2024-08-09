@@ -1,0 +1,8 @@
+.pip_cache/*
+.venv/*
+**pycache**
+data/LJ3D_N=*
+experiments/outputs/*
+experiments/wandb/*
+experiments/LJ3D.ckpt
+experiments/wandb.key

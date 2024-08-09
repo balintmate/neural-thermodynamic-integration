@@ -1,0 +1,45 @@
+target_system:
+  _target_: data.target_systems.LJ3D
+
+E_model:
+  _target_: E_model.E_model
+  size_to_pad: {40: 350, 80: 1200, 120: 2300, 160: 4000, 200: 6500}
+  target_system: ${target_system}
+data_to_generate: [40,   60,    80, 100, 120, 140, 160, 180,  200]
+sampling_dx:      [3e-5, 1e-5,7e-6, 4e-6,2e-6, 9e-7,7e-7,5e-7, 4e-7] 
+
+train_N_list: [40,80,120,160,200]
+eval_N_list:      [60,100,140,180]
+eval_num_batches: [10,10,10,10]
+eval_batch_size:  [5,5,5,5]
+num_train_steps: 100000
+eval_every_n_steps: 5000
+
+
+
+batch_size: 32
+
+
+optim:
+  _target_: optax.adamw
+  learning_rate:
+    _target_: optax.exponential_decay
+    init_value: 1e-3
+    decay_rate: 1e-1
+    transition_steps: 50000
+    end_value: 1e-5
+
+
+
+model:
+  _target_: diffusion_model.diffusion_model
+  target_system: ${target_system}
+  num_integration_steps: 1000
+  sigma_min: 1e-3
+  sigma_max: 5e-1
+
+logZ_estimate:
+    num_batches: 5
+    batch_size: 10
+    N_range: [2,201,1]
+

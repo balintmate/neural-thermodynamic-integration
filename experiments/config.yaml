@@ -1,0 +1,19 @@
+
+defaults:
+  - _self_
+  - LJ3D
+
+jax_config:
+  jax_enable_x64: False
+  jax_numpy_rank_promotion: 'raise'
+  jax_debug_nans: True
+
+
+wandb_project_name: neural-TI
+PRNGKey: 0
+cuda_devices: '0'
+
+
+
+
+
