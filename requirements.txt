@@ -1,8 +1,6 @@
-wandb == 0.15.2
-flax == 0.8.5
-optax == 0.1.7
-hydra-core == 1.3.2
-matplotlib == 3.7.1
-pytest == 7.4.3
-ipykernel == 6.27.1
-seaborn
+wandb
+flax
+optax
+hydra-core
+matplotlib
+pytest
