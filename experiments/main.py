@@ -125,12 +125,10 @@ def main(cfg):
             eval_step()
 
     print(80 * "=")
-    print("logZ estimation...")
     file = open(f"{ckpt_path}", "wb")
     pickle.dump({"params": params, "opt_state": opt_state, "cfg": cfg}, file)
     file.close()
     wandb.save(f"{ckpt_path}", policy="now")
-    logZ_estimation(cfg)
     wandb.save(
         f"eval_logs_{target_name}",
         policy="now",
