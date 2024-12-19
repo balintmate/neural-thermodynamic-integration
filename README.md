@@ -21,13 +21,12 @@ All the plots and metrics are also logged to the ```experiments/wandb```director
 If you find our paper or this repository useful, consider citing us at
 
 ```
-@misc{máté2024neural,
-        title={Neural Thermodynamic Integration: Free Energies from Energy-based Diffusion Models}, 
-        author={Bálint Máté and François Fleuret and Tristan Bereau},
-        year={2024},
-        eprint={2406.02313},
-        archivePrefix={arXiv},
-        primaryClass={cond-mat.stat-mech}
-        url={https://arxiv.org/abs/2406.02313}
+@article{mate2024neural,
+        title={Neural Thermodynamic Integration: Free Energies from Energy-Based Diffusion Models},
+        author={M{\'a}t{\'e}, B{\'a}lint and Fleuret, Fran{\c{c}}ois and Bereau, Tristan},
+        journal={The Journal of Physical Chemistry Letters},
+        volume={15},
+        pages={11395--11404},
+        publisher={ACS Publications}
 }
 ```
