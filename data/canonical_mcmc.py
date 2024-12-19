@@ -73,41 +73,64 @@ class Canonical_Sampler:
             print(f"D2_min: {D_min:.4f}             ", end="\r")
         print()
 
-        samples_list = [x0]
+        x_curr = x0
+        samples_list = []
+        i = 0
+
+        @jax.jit
+        def body_fn(i, carry):
+            x_traj, U_traj, acc_prob_traj, key = carry
+            key1, key2 = jax.random.split(key)
+            x_curr = jax.tree.map(lambda x: x[i], x_traj)
+            U_curr = U_traj[i]
+            x_prop = self.propose(x_curr, key1)
+            U_prop = self.U(x_prop)
+            U_diff = U_prop - U_curr
+            acc_prob = jnp.exp(-U_diff)
+            acc_prob_traj = acc_prob_traj.at[i].set(jnp.clip(acc_prob, max=1))
+            take_new = jax.random.uniform(key2, (1,))[0] < acc_prob
+            x_new = jax.tree_map(
+                lambda n, o: take_new * n + (1 - take_new) * o, x_prop, x_curr
+            )
+            x_traj = jax.tree.map(lambda x, n: x.at[i + 1].set(n), x_traj, x_new)
+            U_new = take_new * U_prop + (1 - take_new) * U_curr
+            U_traj = U_traj.at[i + 1].set(U_new)
+            key = jax.random.split(key)[0]
+            return x_traj, U_traj, acc_prob_traj, key
+
+        NUM_TO_SAMPLE = self.target_system.num_samples + self.target_system.burn_in
+        while i < NUM_TO_SAMPLE:
+            N = 1000
+            #######
+            x_traj = jnp.zeros((N,) + x_curr.shape)
+            x_traj = x_traj.at[0].set(x_curr)
+            U_traj = jnp.zeros((N,))
+            U_traj = U_traj.at[0].set(self.U(x_curr))
+            acc_prob_traj = jnp.zeros(N)
+            carry = (x_traj, U_traj, acc_prob_traj, key)
+            x_traj, U_traj, acc_prob_traj, key = jax.lax.fori_loop(
+                0, N - 1, body_fn, carry
+            )
+            x_curr = x_traj[-1]
+            # jax.debug.print('{x}',x=x_curr['water']['R'])
+            ######
+
+            i += N
+            if i > self.target_system.burn_in:
+                samples_list.append(x_traj)
 
         i = 0
-        NUM_TO_SAMPLE = self.target_system.num_samples + self.target_system.burn_in
-        while len(samples_list) < NUM_TO_SAMPLE:
-            i = i + 1
-            key1, key2, key = jax.random.split(key, 3)
-
-            proposal = self.propose(samples_list[-1], key1)
-            U_diff = self.U(proposal) - self.U(samples_list[-1])
-
-            acceptance_prob = jnp.exp(-self.target_system.beta * U_diff)
-
-            print(f"time: {time.time()-start:.0f}s", end="    ")
-            print(
-                f"accepted samples: {len(samples_list)+1}/{ NUM_TO_SAMPLE} ({100*(len(samples_list)+1)/( NUM_TO_SAMPLE):.1f}%)",
-                end="    ",
-            )
-            print(f"acc. rate: {len(samples_list)/i:.3f}", end="    ")
-            print(f"dx: {self.dx:.2e}", end="\r")
-            sys.stdout.flush()
-
-            if jax.random.uniform(key2, (1,))[0] < acceptance_prob:
-                samples_list.append(proposal)
 
         print("")
-        samples = jnp.stack(samples_list[self.target_system.burn_in :])
-
+        samples = jnp.concatenate(samples_list)
         samples = jax.random.permutation(jax.random.key(0), samples, axis=0)
         if not return_samples:
             with open(data_path, "wb") as file:
                 pickle.dump(samples, file)
             print(f"Generated data has size {os.path.getsize(data_path)/2**20:.1f} MB")
+            print(f"and shape {samples.shape}")
             if wandb.run is not None:
-                wandb.log({f"acceptance rate/{self.N}": len(samples_list) / i})
+                wandb.log({f"acceptance rate/{self.N}": acc_prob_traj.mean()})
             print(50 * "-")
         else:
             return samples
