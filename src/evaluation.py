@@ -35,7 +35,7 @@ def eval_model(dataloader, ddpm, target, num_batches):
     g_train, g_samples = 0, 0
     logZ = 0
 
-    bins_g = jnp.linspace(0, (len(target.g_x_ticks) - 1) * target.sigma, 300)
+    bins_g = jnp.linspace(0, 4 * target.sigma, 300)
     key = jax.random.PRNGKey(5)
 
     for i in range(num_batches):
@@ -53,9 +53,9 @@ def eval_model(dataloader, ddpm, target, num_batches):
     plt.legend()
     plt.yticks([])
     plt.ylim(bottom=0)
-    plt.xlim(0, (len(target.g_x_ticks) - 1) * target.sigma)
-    plt.xlabel(rf"{target.g_x_label}", fontsize=18)
-    plt.xticks(jnp.arange(len(target.g_x_ticks)) * target.sigma, target.g_x_ticks)
+    plt.xlim(0, 3 * target.sigma)
+    plt.xlabel("r$r/\sigma$", fontsize=18)
+    plt.xticks(jnp.arange(4) * target.sigma, jnp.arange(4))
     plt.ylabel(r"$g(r)$", fontsize=18)
     logdict = {
         **logdict,

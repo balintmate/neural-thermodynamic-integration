@@ -35,24 +35,7 @@ class LJ(TargetSystemAbs):
 class LJ3D(LJ):
     num_dim: int = 3
     sigma: float = 1 / 6
-    # V = 6**3 = 196
-    # V_atom  = pi/6 ~1/2
-    # densest packing uses 74%
     eps: float = 0.4
     data_path: str = "../data/LJ3D"
     num_samples: int = 30 * 1000
     burn_in: int = 10 * 1000
-    g_x_label: str = "$r/\sigma$"
-    g_x_ticks: jnp.array = jnp.arange(4)
-
-
-class LJ3D_soft(LJ3D):
-    num_samples: int = 10 * 1000
-    burn_in: int = 2000
-
-    def __init__(self, lam):
-        self.lam = lam
-        self.data_path = f"../data/LJ3Dsoft_{self.lam:.2f}"
-
-    def U_ij(self, r2):
-        return (1 - self.lam) * self.U_ij_soft(self.lam, r2)

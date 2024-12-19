@@ -112,8 +112,6 @@ class Canonical_Sampler:
                 0, N - 1, body_fn, carry
             )
             x_curr = x_traj[-1]
-            # jax.debug.print('{x}',x=x_curr['water']['R'])
-            ######
 
             i += N
             if i > self.target_system.burn_in:
