@@ -22,11 +22,17 @@ If you find our paper or this repository useful, consider citing us at
 
 ```
 @article{mate2024neural,
-        title={Neural Thermodynamic Integration: Free Energies from Energy-Based Diffusion Models},
-        author={M{\'a}t{\'e}, B{\'a}lint and Fleuret, Fran{\c{c}}ois and Bereau, Tristan},
-        journal={The Journal of Physical Chemistry Letters},
+        author = {Mát{\'e}, Bálint and Fleuret, Fran{\c{c}}ois and Bereau, Tristan},
+        title = {Neural Thermodynamic Integration: Free Energies from Energy-Based Diffusion Models},
+        journal = {The Journal of Physical Chemistry Letters},
         volume={15},
+        number = {45},
+        pages = {11395-11404},
+        year = {2024},
+        doi = {10.1021/acs.jpclett.4c01958},
+        note ={PMID: 39503734},
+        URL = {https://doi.org/10.1021/acs.jpclett.4c01958},
+        eprint = {https://doi.org/10.1021/acs.jpclett.4c01958},
         pages={11395--11404},
-        publisher={ACS Publications}
 }
 ```
