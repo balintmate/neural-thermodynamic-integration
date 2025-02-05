@@ -32,7 +32,7 @@ If you find our paper or this repository useful, consider citing us at
         doi = {10.1021/acs.jpclett.4c01958},
         note ={PMID: 39503734},
         URL = {https://doi.org/10.1021/acs.jpclett.4c01958},
-        eprint = {https://doi.org/10.1021/acs.jpclett.4c01958},
+        eprint = {2406.02313},
         pages={11395--11404},
 }
 ```
