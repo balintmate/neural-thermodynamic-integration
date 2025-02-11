@@ -30,7 +30,6 @@ def eval_one_batch(ddpm, params, bins_g, x_train, key):
 
 
 def eval_model(dataloader, ddpm, target, num_batches):
-    plt.style.use("seaborn-notebook")
     logdict = {}
     g_train, g_samples = 0, 0
     logZ = 0

@@ -42,6 +42,8 @@ def main(cfg):
         sampler = Canonical_Sampler(target_system, N=N)
         sampler.sample(key=jax.random.PRNGKey(cfg.PRNGKey), dx=cfg.sampling_dx[i])
 
+    print(80 * "-")
+    print("Preparing data, this might take a few minutes...")
     eval_dataloaders = []
     for i, N in enumerate(cfg.eval_N_list):
         with open(target_system.data_path + f"_N={N}", "rb") as pickle_file:
@@ -61,6 +63,7 @@ def main(cfg):
     train_n = jnp.concatenate(train_n)
     train_loader = DataLoader(train_x, train_n, batch_size=cfg.batch_size)
 
+    print("Done.")
     print(80 * "-")
 
     ddpm = hydra.utils.instantiate(cfg.model)

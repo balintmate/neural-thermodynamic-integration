@@ -40,7 +40,6 @@ class Canonical_Sampler:
     def sample(self, key, dx, return_samples=False):
         self.dx = dx
         data_path = self.target_system.data_path + f"_N={self.N}"
-        start = time.time()
         print(50 * "-")
         print(f"N = {self.N}")
         if os.path.isfile(data_path) and not return_samples:
@@ -60,18 +59,21 @@ class Canonical_Sampler:
         optim = optax.adam(learning_rate=1e-4)
         opt_state = optim.init(x0)
 
-        D_min = 0
-        while D_min < 1:
+        @jax.jit
+        def move(x0, opt_state):
             grad = jax.grad(loss)(x0)
             updates, opt_state = optim.update(grad, opt_state, x0)
             x0 = optax.apply_updates(x0, updates) % 1
-            mask = 1 - jnp.eye(len(x0))
+            mask = jnp.eye(len(x0))
             D = dist2_on_torus(x0)
-            D = D + (1 - mask)
             D = D / self.target_system.sigma**2
             D_min = (D + mask).min()
+            return D_min, x0, opt_state
+
+        D_min = 0
+        while D_min < 0.7:
+            D_min, x0, opt_state = move(x0, opt_state)
             print(f"D2_min: {D_min:.4f}             ", end="\r")
-        print()
 
         x_curr = x0
         samples_list = []
@@ -81,7 +83,7 @@ class Canonical_Sampler:
         def body_fn(i, carry):
             x_traj, U_traj, acc_prob_traj, key = carry
             key1, key2 = jax.random.split(key)
-            x_curr = jax.tree.map(lambda x: x[i], x_traj)
+            x_curr = x_traj[i]
             U_curr = U_traj[i]
             x_prop = self.propose(x_curr, key1)
             U_prop = self.U(x_prop)
@@ -89,10 +91,8 @@ class Canonical_Sampler:
             acc_prob = jnp.exp(-U_diff)
             acc_prob_traj = acc_prob_traj.at[i].set(jnp.clip(acc_prob, max=1))
             take_new = jax.random.uniform(key2, (1,))[0] < acc_prob
-            x_new = jax.tree_map(
-                lambda n, o: take_new * n + (1 - take_new) * o, x_prop, x_curr
-            )
-            x_traj = jax.tree.map(lambda x, n: x.at[i + 1].set(n), x_traj, x_new)
+            x_new = take_new * x_prop + (1 - take_new) * x_curr
+            x_traj = x_traj.at[i + 1].set(x_new)
             U_new = take_new * U_prop + (1 - take_new) * U_curr
             U_traj = U_traj.at[i + 1].set(U_new)
             key = jax.random.split(key)[0]
